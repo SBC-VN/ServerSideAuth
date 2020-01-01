@@ -16,17 +16,30 @@ function performLogout() {
 //  so that the username & password is encrypted. 
 //
 function performLogin(username,password) {
-    $.post("http://localhost:3000/api/login",{username,password},loginCallback);
+   $.post(  "http://localhost:3000/api/login",
+            {username,password},
+            loginCallback)
+            .fail(function(jqXHR, textStatus, errorThrown) 
+            {
+                console.log("status",textStatus);
+                console.log("error",errorThrown);
+                console.log("jqXHR",jqXHR);
+            });
 }
 
 //
 // Gets the data back from the login api.   Checks the status on the login and either notifies the
 //  user they didn't log in, or sets the loggedin/session variables.
 //
-function loginCallback(data, status) {
-    console.log("status",status);
-    console.log("data",data);
-    loggedin = true;
+function loginCallback(data, status, jqXHR) {   
+    if (data.sessionId !== undefined) {
+        loggedin = true;
+        sessionid = data.sessionId;
+        $("#log-status-text").text("Logged in, session id: " + sessionid);
+    }
+    else {
+        $("#log-status-text").text("Not logged in; invalid username/password.");
+    }
 }
 
 function toggleLogin() {
